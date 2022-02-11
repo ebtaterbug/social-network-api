@@ -1,35 +1,22 @@
 const { Schema, model } = require('mongoose');
+const thoughtSchema = require('./Thought');
 
 const UserSchema = new Schema
 ({
-    pizzaName: {
+    Username: {
       type: String,
+      unique: true,
       required: true,
       trim: true
     },
-    createdBy: {
+    email: {
       type: String,
       required: true,
-      trim: true
+      unique: true,
+      match: [/.+@.+\..+/]
     },
-    createdAt: {
-      type: Date,
-      default: Date.now,
-      get: (createdAtVal) => dateFormat(createdAtVal)
-    },
-    size: {
-        type: String,
-        required: true,
-        enum: ['Personal', 'Small', 'Medium', 'Large', 'Extra Large'],
-        default: 'Large'
-    },
-    toppings: [],
-    comments: [
-        {
-            type: Schema.Types.ObjectId,
-            ref: 'Comment'
-        }
-    ]    
+    thoughts: [thoughtSchema],
+    friends: [UserSchema],  
  },
  {
     toJSON: {
@@ -40,8 +27,10 @@ const UserSchema = new Schema
  }
 );
   
-// create the User model using the UserSchema
+UserSchema.virtual('friendCount').get(function() {
+    return this.friends.length;
+});
+
 const User = model('User', UserSchema);
 
-// export the User model
 module.exports = User;

@@ -1,18 +1,18 @@
-const { Schema, model } = require('mongoose');
+const { Schema, model, Types } = require('mongoose');
+const dateFormat = require('../utils/dateFormat');
 
 const ReactionSchema = new Schema(
   {
-    // set custom id to avoid confusion with parent comment _id
-    replyId: {
+    reactionId: {
       type: Schema.Types.ObjectId,
       default: () => new Types.ObjectId()
     },
-    replyBody: {
+    reactionBody: {
       type: String,
       required: true,
-      trim: true
+      maxLength: 280
     },
-    writtenBy: {
+    username: {
       type: String,
       required: true,
     },
@@ -29,37 +29,7 @@ const ReactionSchema = new Schema(
   }
 );
 
-const CommentSchema = new Schema(
-  {
-    writtenBy: {
-      type: String,
-      required: true
-    },
-    commentBody: {
-      type: String,
-      required: true
-    },
-    createdAt: {
-      type: Date,
-      default: Date.now,
-      get: createdAtVal => dateFormat(createdAtVal)
-    },
-    // use ReplySchema to validate data for a reply
-    replies: [ReplySchema]
-  },
-  {
-    toJSON: {
-      virtuals: true,
-      getters: true
-    },
-    id: false
-  }
-);
-
-CommentSchema.virtual('replyCount').get(function() {
-  return this.replies.length;
-});
 
 const Reaction = model('Reaction', ReactionSchema);
 
-module.exports = Comment;
+module.exports = Reaction;
